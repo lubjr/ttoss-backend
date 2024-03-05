@@ -30,6 +30,19 @@ app.post('/videos', async (req, res) => {
   }
 })
 
+app.get('/videos', async (req, res) => {
+  try {
+    const params = {
+      TableName: table,
+    }
+    const data = await dynamodb.scan(params).promise()
+    res.status(200).send(data.Items)
+  } catch (err) {
+    console.error('Error retrieving videos:', err)
+    res.status(500).send('Error retrieving videos')
+  }
+})
+
 app.listen(3333, () => {
   console.log('Server is running on port 3333')
 })
