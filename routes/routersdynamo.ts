@@ -7,6 +7,19 @@ const table = 'Videos'
 AWS.config.update(awsConfig)
 const dynamodb = new AWS.DynamoDB.DocumentClient()
 
+router.get('/videos/list', async (req, res) => {
+  try {
+    const params = {
+      TableName: table,
+    }
+    const data = await dynamodb.scan(params).promise()
+    res.status(200).send(data.Items)
+  } catch (err) {
+    console.error('Error list videos:', err)
+    res.status(500).send({ message: 'Error retrieving videos' })
+  }
+})
+
 router.post('/videos/add', async (req, res) => {
   const { pk, sk, title, url, src, rating } = req.query
   const params = {
@@ -28,16 +41,47 @@ router.post('/videos/add', async (req, res) => {
   }
 })
 
-router.get('/videos/list', async (req, res) => {
+// Router.delete (update)
+router.post('/videos/delete', async (req, res) => {
+  const { pk, sk } = req.query
+  const params = {
+    TableName: table,
+    Key: {
+      pk,
+      sk,
+    },
+  }
   try {
-    const params = {
-      TableName: table,
-    }
-    const data = await dynamodb.scan(params).promise()
-    res.status(200).send(data.Items)
+    await dynamodb.delete(params).promise()
+    res.status(200).send({ message: 'Video has been deleted' })
   } catch (err) {
-    console.error('Error list videos:', err)
-    res.status(500).send({ message: 'Error retrieving videos' })
+    console.error('Error deleting videos:', err)
+    res.status(500).send({ message: 'Error deleting video' })
+  }
+})
+
+// Router.put (update)
+router.post('/videos/update', async (req, res) => {
+  const { pk, sk, rating } = req.query
+  const params = {
+    TableName: table,
+    Key: {
+      pk,
+      sk,
+    },
+    UpdateExpression: 'set rating = :rating',
+    ExpressionAttributeValues: {
+      ':rating': rating,
+    },
+    ReturnValues: 'UPDATED_NEW',
+  }
+
+  try {
+    const data = await dynamodb.update(params).promise()
+    res.status(200).send(data)
+  } catch (err) {
+    console.error('Error updating videos:', err)
+    res.status(500).send({ message: 'Error updating video' })
   }
 })
 
