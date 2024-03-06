@@ -1,3 +1,10 @@
+import { config } from 'dotenv'
+
+config()
+
+const acess = process.env.accessKeyId || ''
+const secret = process.env.secretAccessKey || ''
+
 export interface AwsConfig {
   region: string
   endpoint: string
@@ -8,6 +15,6 @@ export interface AwsConfig {
 export const awsConfig: AwsConfig = {
   region: 'us-east-1',
   endpoint: 'https://dynamodb.us-east-1.amazonaws.com',
-  accessKeyId: '',
-  secretAccessKey: '',
+  accessKeyId: acess,
+  secretAccessKey: secret,
 }
