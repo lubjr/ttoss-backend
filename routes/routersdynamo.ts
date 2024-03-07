@@ -7,6 +7,7 @@ const table = 'Videos'
 AWS.config.update(awsConfig)
 const dynamodb = new AWS.DynamoDB.DocumentClient()
 
+// All list
 router.get('/videos/list', async (req, res) => {
   try {
     const params = {
@@ -20,6 +21,7 @@ router.get('/videos/list', async (req, res) => {
   }
 })
 
+// Adding a new video
 router.post('/videos/add', async (req, res) => {
   const { pk, sk, title, url, src, rating } = req.query
   const params = {
@@ -82,6 +84,29 @@ router.post('/videos/update', async (req, res) => {
   } catch (err) {
     console.error('Error updating videos:', err)
     res.status(500).send({ message: 'Error updating video' })
+  }
+})
+
+// Search by primary key
+router.post('/videos/get', async (req, res) => {
+  const { pk } = req.query
+  try {
+    const params = {
+      TableName: table,
+      FilterExpression: 'pk = :pk',
+      ExpressionAttributeValues: {
+        ':pk': pk,
+      },
+    }
+    const data = await dynamodb.scan(params).promise()
+    if (data && data.Items) {
+      res.status(200).send(data.Items)
+      return
+    }
+    res.status(500).send({ message: 'Error getting video' })
+  } catch (err) {
+    console.error('Error getting videos:', err)
+    res.status(500).send({ message: 'Error getting video' })
   }
 })
 
