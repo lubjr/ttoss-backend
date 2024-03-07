@@ -4,6 +4,8 @@ config()
 
 const acess = process.env.accessKeyId || ''
 const secret = process.env.secretAccessKey || ''
+const region = process.env.region || ''
+const endpoint = process.env.endpoint || ''
 
 export interface AwsConfig {
   region: string
@@ -13,8 +15,8 @@ export interface AwsConfig {
 }
 
 export const awsConfig: AwsConfig = {
-  region: 'us-east-1',
-  endpoint: 'https://dynamodb.us-east-1.amazonaws.com',
+  region,
+  endpoint,
   accessKeyId: acess,
   secretAccessKey: secret,
 }
