@@ -1,18 +1,20 @@
 import express from 'express'
-import router from '../routes/routersdynamo'
-
-import { PrismaClient } from '@prisma/client'
+import dynamoRouter from './routes/routersdynamo'
+import prismaRouter from './routes/routerprisma'
+import cors from 'cors'
 
 const app = express()
-const prisma = new PrismaClient()
 
+app.use(
+  cors({
+    origin: true,
+  }),
+)
 app.use(express.json())
-app.use(router)
+app.use(dynamoRouter)
+app.use(prismaRouter)
 
 app.get('/', async (req, res) => {
-  const allUsers = await prisma.user.findMany()
-  console.log(allUsers)
-
   res.send({ hello: 'world' })
 })
 
