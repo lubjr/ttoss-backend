@@ -110,4 +110,27 @@ dynamoRouter.post('/videos/get', async (req, res) => {
   }
 })
 
+// List by order (rating)
+dynamoRouter.get('/videos/listrating', async (req, res) => {
+  try {
+    const params = {
+      TableName: table,
+    }
+
+    const data = await dynamodb.scan(params).promise()
+
+    if (data.Items) {
+      const sortedItems = data.Items.sort((a, b) => {
+        const ratingA = parseInt(a.rating || '0')
+        const ratingB = parseInt(b.rating || '0')
+        return ratingB - ratingA
+      })
+      res.status(200).send(sortedItems)
+    }
+  } catch (err) {
+    console.error('Error list videos:', err)
+    res.status(500).send({ message: 'Error retrieving videos' })
+  }
+})
+
 export default dynamoRouter
