@@ -1,6 +1,7 @@
 import express from 'express'
 import AWS from 'aws-sdk'
 import { awsConfig } from '../config/credentials'
+import { random } from 'lodash'
 
 const dynamoRouter = express.Router()
 const table = 'Videos'
@@ -32,7 +33,7 @@ dynamoRouter.post('/videos/add', async (req, res) => {
       title,
       url,
       src,
-      rating,
+      rating, // Ele ta indo como string
     },
   }
   try {
@@ -65,6 +66,9 @@ dynamoRouter.post('/videos/delete', async (req, res) => {
 // dynamoRouter.put (update)
 dynamoRouter.post('/videos/update', async (req, res) => {
   const { pk, sk, rating } = req.query
+
+  const numericRating = Number(rating)
+
   const params = {
     TableName: table,
     Key: {
@@ -73,7 +77,7 @@ dynamoRouter.post('/videos/update', async (req, res) => {
     },
     UpdateExpression: 'set rating = :rating',
     ExpressionAttributeValues: {
-      ':rating': rating,
+      ':rating': numericRating,
     },
     ReturnValues: 'UPDATED_NEW',
   }
@@ -133,4 +137,45 @@ dynamoRouter.get('/videos/listrating', async (req, res) => {
   }
 })
 
+// Generates two videos
+dynamoRouter.get('/videos/two', async (req, res) => {
+  try {
+    const params = {
+      TableName: table,
+    }
+    const data = await dynamodb.scan(params).promise()
+
+    if (!data.Items) {
+      return res.status(404).send({ message: 'No items found' })
+    }
+
+    const min = 0
+    const max = data.Items.length - 1
+
+    const randomIndex1 = random(min, max)
+    let randomIndex2 = random(min, max)
+
+    while (randomIndex2 === randomIndex1) {
+      randomIndex2 = random(min, max)
+    }
+
+    const video1 = data.Items[randomIndex1]
+    const video2 = data.Items[randomIndex2]
+
+    res.status(200).send([video1, video2])
+  } catch (err) {
+    console.error('Error list videos:', err)
+    res.status(500).send({ message: 'Error retrieving videos' })
+  }
+})
+
 export default dynamoRouter
+
+// interface VideoData {
+//   pk: string
+//   sk: string
+//   title: string
+//   url: string
+//   src: string
+//   rating: number
+// }
