@@ -2,9 +2,6 @@ import express from 'express'
 import AWS from 'aws-sdk'
 import { awsConfig } from '../config/credentials'
 import { random } from 'lodash'
-import { suppress } from 'aws-sdk/lib/maintenance_mode_message'
-
-suppress = true
 
 const dynamoRouter = express.Router()
 const table = 'Videos'
