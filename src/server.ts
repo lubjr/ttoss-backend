@@ -4,6 +4,7 @@ import prismaRouter from './routes/routerprisma'
 import cors from 'cors'
 
 const app = express()
+const port = 3333
 
 app.use(
   cors({
@@ -18,6 +19,6 @@ app.get('/', async (req, res) => {
   res.send({ hello: 'world' })
 })
 
-app.listen(3333, () => {
-  console.log('Server is running on port 3333')
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`)
 })
